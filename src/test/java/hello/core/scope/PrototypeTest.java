@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Scope;
@@ -15,22 +14,30 @@ public class PrototypeTest {
     public void prototypeBeanFind() {
         AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(
                 PrototypeBean.class);
-        System.out.println("find prototypeBean1");
         PrototypeBean prototypeBean1 = ac.getBean(PrototypeBean.class);
-        System.out.println("find prototypeBean2");
+        prototypeBean1.addCount();
+        assertThat(prototypeBean1.getCount()).isEqualTo(1);
         PrototypeBean prototypeBean2 = ac.getBean(PrototypeBean.class);
-        System.out.println("prototypeBean1 = " + prototypeBean1);
-        System.out.println("prototypeBean2 = " + prototypeBean2);
-        assertThat(prototypeBean1).isNotSameAs(prototypeBean2);
-        ac.close(); //종료
+        prototypeBean2.addCount();
+        assertThat(prototypeBean2.getCount()).isEqualTo(1);
     }
 
     @Scope("prototype")
     static class PrototypeBean {
 
+        private int count = 0;
+
+        public void addCount() {
+            count++;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
         @PostConstruct
         public void init() {
-            System.out.println("PrototypeBean.init");
+            System.out.println("PrototypeBean.init" + this);
         }
 
         @PreDestroy
